@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Product
+{
+    public int ProductID { get; set; }
+    public string ProductName { get; set; }
+    public string Category { get; set; }
+    public decimal UnitPrice { get; set; }
+    public int UnitsInStock { get; set; }
+}
+
+class Customer
+{
+    public string CustomerID { get; set; }
+    public string CompanyName { get; set; }
+    public string Country { get; set; }
+    public List<Order> Orders { get; set; }
+}
+
+class Order
+{
+    public int OrderID { get; set; }
+    public decimal Total { get; set; }
+}
+
+static class ListGenerator
+{
+    public static List<Product> ProductList = new List<Product>
+    {
+        new Product { ProductID = 1, ProductName = "Chai", Category = "Beverages", UnitPrice = 18.00m, UnitsInStock = 39 },
+        new Product { ProductID = 2, ProductName = "Chang", Category = "Beverages", UnitPrice = 19.00m, UnitsInStock = 17 },
+        new Product { ProductID = 3, ProductName = "Aniseed Syrup", Category = "Condiments", UnitPrice = 10.00m, UnitsInStock = 13 },
+        new Product { ProductID = 4, ProductName = "Chef Anton's Cajun Seasoning", Category = "Condiments", UnitPrice = 22.00m, UnitsInStock = 53 },
+        new Product { ProductID = 5, ProductName = "Chef Anton's Gumbo Mix", Category = "Condiments", UnitPrice = 21.30m, UnitsInStock = 0 },
+        new Product { ProductID = 6, ProductName = "Grandma's Boysenberry Spread", Category = "Condiments", UnitPrice = 25.00m, UnitsInStock = 120 },
+        new Product { ProductID = 7, ProductName = "Uncle Bob's Organic Dried Pears", Category = "Produce", UnitPrice = 30.00m, UnitsInStock = 15 },
+        new Product { ProductID = 8, ProductName = "Northwoods Cranberry Sauce", Category = "Condiments", UnitPrice = 40.00m, UnitsInStock = 6 },
+        new Product { ProductID = 9, ProductName = "Mishi Kobe Niku", Category = "Meat/Poultry", UnitPrice = 97.00m, UnitsInStock = 29 },
+        new Product { ProductID = 10, ProductName = "Ikura", Category = "Seafood", UnitPrice = 31.00m, UnitsInStock = 31 },
+        new Product { ProductID = 18, ProductName = "Carnarvon Tigers", Category = "Seafood", UnitPrice = 62.50m, UnitsInStock = 42 }
+    };
+
+    public static List<Customer> CustomerList = new List<Customer>
+    {
+        new Customer { CustomerID = "ALFKI", CompanyName = "Alfreds Futterkiste", Country = "Germany", Orders = new List<Order> { new Order { OrderID = 1, Total = 500m }, new Order { OrderID = 2, Total = 300m } } },
+        new Customer { CustomerID = "ANATR", CompanyName = "Ana Trujillo Emparedados y helados", Country = "Mexico", Orders = new List<Order> { new Order { OrderID = 3, Total = 200m } } },
+        new Customer { CustomerID = "ANTON", CompanyName = "Antonio Moreno Taquería", Country = "Mexico", Orders = new List<Order> { new Order { OrderID = 4, Total = 1000m } } },
+        new Customer { CustomerID = "AROUT", CompanyName = "Around the Horn", Country = "UK", Orders = new List<Order> { new Order { OrderID = 5, Total = 150m } } }
+    };
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var r1 = ListGenerator.ProductList.OrderByDescending(p => p.UnitPrice).Take(3);
+
+        var r2 = ListGenerator.ProductList.Skip(5).Take(5);
+
+        var r3 = ListGenerator.ProductList.OrderBy(p => p.UnitPrice).TakeWhile(p => p.UnitPrice < 25);
+
+        var r4 = ListGenerator.ProductList.Where(p => p.Category == "Seafood").All(p => p.UnitsInStock > 0);
+
+        int[] ids = { 3, 9, 13, 18 };
+        var r5 = ids.Contains(9);
+
+        var r6 = ListGenerator.ProductList.GroupBy(p => p.Category);
+
+        var r7 = ListGenerator.ProductList.GroupBy(p => p.Category);
+
+        var r8 = ListGenerator.ProductList.GroupBy(p => p.Category).Where(g => g.Count() > 3).Select(g => g.Key);
+
+        var r9 = from c in ListGenerator.CustomerList
+                 group c by c.Country into g
+                 select new
+                 {
+                     Country = g.Key,
+                     Count = g.Count(),
+                     TotalOrderValue = g.Sum(x => x.Orders.Sum(o => o.Total))
+                 };
+
+        var r10 = ListGenerator.ProductList.Sum(p => p.UnitsInStock);
+
+        var r11Min = ListGenerator.ProductList.Min(p => p.UnitPrice);
+        var r11Max = ListGenerator.ProductList.Max(p => p.UnitPrice);
+
+        var r12 = ListGenerator.ProductList.Select(p => p.Category).Distinct();
+
+        int[] setA = { 1, 3, 5, 7, 9, 11, 13 };
+        int[] setB = { 3, 6, 9, 12, 15, 13 };
+        var r13 = setA.Except(setB);
+
+        string[] list1 = { "Germany", "France", "UK", "Spain" };
+        string[] list2 = { "france", "SPAIN", "Italy" };
+        var r14 = list1.Except(list2, StringComparer.OrdinalIgnoreCase);
+
+        Dictionary<int, Product> r15Dict = ListGenerator.ProductList.ToDictionary(p => p.ProductID);
+        Product r15 = r15Dict[18];
+
+        var r16 = ListGenerator.ProductList.First(p => p.UnitPrice > 50);
+
+        var r17 = ListGenerator.ProductList.FirstOrDefault(p => p.UnitPrice > 500);
+
+        var r18 = Enumerable.Range(1, 12).Select(i => i * 7);
+
+        var r19 = Enumerable.Range(1, 30).Where(x => x % 2 == 0);
+
+        var r20 = ListGenerator.ProductList.Take(3).Select(p => p.ProductName)
+                  .Concat(ListGenerator.CustomerList.Take(3).Select(c => c.CompanyName));
+
+        var r21 = ListGenerator.ProductList.Zip(ListGenerator.CustomerList, (p, c) => $"{p.ProductName} sold to {c.CompanyName}");
+    }
+}
